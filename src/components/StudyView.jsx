@@ -166,6 +166,13 @@ function SubjectPractice({ subjectId, answers, bookmarks, onAnswer, onRetry, onT
 }
 
 export default function StudyView({ selectedItem, answers, bookmarks, scrollTarget, onAnswer, onRetry, onToggleBookmark, onGotoChapter }) {
+  useEffect(() => {
+    if (!scrollTarget) {
+      window.scrollTo(0, 0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run on navigation, not when scrollTarget later clears itself
+  }, [selectedItem]);
+
   if (selectedItem.startsWith('practice:')) {
     const subjectId = selectedItem.split(':')[1];
     return (
