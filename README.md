@@ -1,16 +1,105 @@
-# React + Vite
+# ADsP 학습노트
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+데이터분석 준전문가(ADsP) 시험 준비를 위한 개인용 학습 웹앱. 소장 중인 문제집 PDF(320p) 내용을 이론과 기출/모의고사로 구조화해서, 이론을 읽다가 바로 관련 문제를 풀어보고 틀린 문제는 원문 이론 위치까지 추적할 수 있게 만드는 것이 목적.
 
-Currently, two official plugins are available:
+로컬에서만 실행하는 개인 프로젝트로, 배포나 서버, 로그인 같은 요소는 의도적으로 두지 않았다.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 1. 배경 및 목표
 
-## React Compiler
+- 문제집이 "이론 → 기출문제/모의고사" 순으로 구성되어 있는데, 종이책으로는 이론과 관련 문제를 오가며 복습하기가 번거로움.
+- **이론 학습 중 바로 관련 문제를 풀고, 틀렸을 때 그 이론 부분으로 즉시 되짚어갈 수 있는 것**이 핵심 요구사항.
+- 시험 직전에는 실전처럼 시간 제한 안에서 기출/모의고사를 풀어보고 채점하는 별도 흐름이 필요.
+- 개인 복습용이므로 점수 이력이나 타이머 기록 같은 통계 기능은 넣지 않고, 대신 오답노트·북마크처럼 "다시 볼 것을 골라내는" 기능에 집중.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 2. 기술 스택
 
-## Expanding the Oxlint configuration
+- **React 19 + Vite** (`npm create vite@latest`로 스캐폴딩)
+- 상태 관리 라이브러리 없이 `App.jsx` 최상단 컴포넌트가 모든 state를 들고 props로 내려주는 구조
+- 데이터는 전부 `src/data.js` 한 곳에 정적 JS 객체로 저장 (백엔드/DB 없음, `localStorage`도 사용하지 않아 새로고침 시 진행 상황은 초기화됨)
+- 콘텐츠 원본 PDF는 macOS Vision 프레임워크 기반 자체 OCR(Swift)로 텍스트를 추출한 뒤, 기출문제 정답/해설은 페이지 이미지를 직접 대조 검증해서 옮김 (OCR 텍스트만으로는 정답 표기가 깨지는 경우가 있어 신뢰하지 않음)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## 3. 콘텐츠 구성
+
+문제집의 실제 목차 구조를 그대로 따른다: **3과목 · 7챕터**, 과목별 예상문제 풀, 그리고 기출/모의고사 8세트.
+
+| 과목 | 챕터 | 예상문제 |
+|---|---|---|
+| 1과목 · 데이터 이해 | CH01 데이터의 이해 · CH02 데이터의 가치와 미래 | 18문항 |
+| 2과목 · 데이터분석 기획 | CH01 데이터 분석 기획의 이해 · CH02 분석 마스터플랜 | 20문항 |
+| 3과목 · 데이터분석 | CH01 데이터 분석 이해 · CH02 기초통계와 통계 검정 · CH03 머신러닝 | 40문항 |
+
+예상문제는 챕터 단위가 아니라 **과목 단위로 풀**을 구성 (문제집 원본 구조와 동일).
+
+**모의고사 8세트 (400문항)** — 각 50문항 · 90분:
+
+- 최신 기출문제 45 / 44 / 43 / 42 / 41 / 40회
+- 실전모의고사 01 / 02회
+
+## 4. 화면 구성
+
+상단 탭 4개: **학습 / 모의고사 / 오답노트 / 북마크**
+
+### 학습
+- 왼쪽 목차(과목 → 챕터 → 섹션 → 예상문제)에서 원하는 위치로 이동
+- 섹션 클릭 시 정확히 해당 섹션 제목 위치로 스크롤 (본문 중간이 아니라 타이틀 기준)
+- 예상문제를 틀리면 관련 이론 챕터·섹션으로 바로 이동하는 링크 제공, 이동한 위치는 연두색으로 하이라이트되어 몇 초간 표시
+- 탭/챕터를 전환할 때마다 스크롤 위치를 맨 위로 초기화 (이전 화면 스크롤 위치가 새 화면에 남아있던 문제 수정)
+
+### 모의고사
+- 목록에서 세트 선택 → 응시 (문항 번호 도트 내비게이션, 남은 시간 타이머)
+- 끝까지 풀지 않아도 "여기까지 하고 채점하기"로 중간 제출 가능
+- 채점 전에는 정답/오답을 보여주지 않고, 제출 후 결과 화면에서만 공개
+- 결과 화면은 좌우 2단 구성: 왼쪽에 전 문항 목록(정답/오답 태그, 고정 스크롤), 오른쪽에 선택한 문항의 해설. 클릭 즉시 오른쪽에 해당 문제가 표시됨 (모바일에서는 목록 대신 드롭다운 선택자로 대체)
+
+### 오답노트
+- 틀린 문제만 모아서 다시 풀이, 맞히면 자동으로 목록에서 제거
+- 출처(과목/모의고사 회차)별 필터링
+
+### 북마크
+- 챕터·예상문제·모의고사 문제 어디서든 북마크 가능, 한 곳에 모아보기
+
+### 진행률
+- 상단바에 전체 챕터 대비 완료한 챕터 비율 표시 (챕터의 예상문제를 모두 풀면 완료로 간주)
+
+## 5. 반응형 / 모바일
+
+기본은 데스크탑 사이드바 레이아웃이며, 화면 폭 760px 이하에서는:
+
+- 왼쪽 고정 목차 대신 상단바의 **☰ 버튼**으로 여닫는 슬라이드 오버레이 방식으로 전환
+- 표(혼동행렬 등)는 페이지 전체가 아니라 표 자체만 가로 스크롤되도록 격리
+- 상단바(탭/진행률)를 한 줄에 들어가도록 압축
+- 모의고사 결과 화면의 좌우 2단 레이아웃은 위/아래로 쌓이고, 문제 목록은 드롭다운으로 대체
+
+## 6. 폴더 구조
+
+```
+src/
+  data.js                 SUBJECTS / THEORY / QUESTIONS / EXAMS 전체 콘텐츠 + 헬퍼 함수
+  App.jsx                 전체 state 보유, 탭·선택 항목·정답·북마크·모의고사 진행 상태 관리
+  index.css               디자인 토큰(라이트/다크) + 전체 스타일, 반응형 미디어 쿼리
+  components/
+    TopBar.jsx            상단 탭, 진행률, 모바일 목차 토글 버튼
+    Sidebar.jsx           과목/챕터/섹션/예상문제 목차 (모바일: 슬라이드 오버레이)
+    StudyView.jsx         이론 렌더링 + 과목별 예상문제 풀이 화면
+    QuestionCard.jsx      문제 카드 (보기, 정답 공개, 해설, 관련 이론 링크, 북마크)
+    ExamView.jsx          모의고사 목록/응시/결과 화면
+    WrongNotesView.jsx    오답노트
+    BookmarksView.jsx     북마크 모음
+public/
+  favicon.svg / icons.svg
+```
+
+## 7. 실행 방법
+
+```bash
+npm install
+npm run dev       # 로컬 개발 서버
+npm run build     # 프로덕션 빌드 (배포 목적 아님, 정적 파일 확인용)
+npm run lint      # oxlint
+```
+
+## 8. 의도적으로 넣지 않은 것
+
+- 로그인/서버/DB, 배포 파이프라인
+- 응시 이력·점수 추이 등 통계 기능 (개인 복습용이라 불필요하다고 판단)
+- `localStorage` 저장 — 새로고침하면 학습 상태가 초기화됨 (필요해지면 추가 가능)
