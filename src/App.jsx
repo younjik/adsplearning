@@ -34,6 +34,7 @@ export default function App() {
   const [wrongFilter, setWrongFilter] = useState('all');
   const [exam, setExam] = useState(freshExam());
   const [scrollTarget, setScrollTarget] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const timerRef = useRef(null);
   const highlightTimerRef = useRef(null);
 
@@ -90,16 +91,23 @@ export default function App() {
     setTab('study');
     setSelectedItem(target);
     setScrollTarget(topicId || null);
+    setSidebarOpen(false);
     const subjectId = target.startsWith('practice:') ? target.split(':')[1] : subjectOfChapter(target)?.id;
     if (subjectId) setExpanded((prev) => new Set(prev).add(subjectId));
   }
   function handleSelectItem(item) {
     setSelectedItem(item);
     setScrollTarget(null);
+    setSidebarOpen(false);
   }
   function handleSelectSection(chapterId, sectionIndex) {
     setSelectedItem(chapterId);
     setScrollTarget(`section:${sectionIndex}`);
+    setSidebarOpen(false);
+  }
+  function handleSwitchTab(nextTab) {
+    setTab(nextTab);
+    setSidebarOpen(false);
   }
   function handleStartExam(examId) {
     const entry = EXAMS.find((e) => e.id === examId);
@@ -134,7 +142,14 @@ export default function App() {
 
   return (
     <>
-      <TopBar tab={tab} onSwitchTab={setTab} progress={progress} />
+      <TopBar
+        tab={tab}
+        onSwitchTab={handleSwitchTab}
+        progress={progress}
+        showSidebarToggle={tab === 'study'}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
+      />
       <div className="layout">
         {tab === 'study' && (
           <Sidebar
@@ -144,6 +159,8 @@ export default function App() {
             onToggleSubject={handleToggleSubject}
             onSelectItem={handleSelectItem}
             onSelectSection={handleSelectSection}
+            open={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
           />
         )}
         <div className="main">

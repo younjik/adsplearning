@@ -5,10 +5,20 @@ const TABS = [
   ['bookmarks', '북마크'],
 ];
 
-export default function TopBar({ tab, onSwitchTab, progress }) {
+export default function TopBar({ tab, onSwitchTab, progress, showSidebarToggle, sidebarOpen, onToggleSidebar }) {
   const pct = progress.total ? Math.round((progress.done / progress.total) * 100) : 0;
   return (
     <div className="topbar">
+      {showSidebarToggle && (
+        <button
+          type="button"
+          className={`sidebar-toggle-btn ${sidebarOpen ? 'open' : ''}`}
+          aria-label="목차 열기"
+          onClick={onToggleSidebar}
+        >
+          ☰
+        </button>
+      )}
       <div className="wordmark">
         <span className="brand-mark">ADsP</span>
         <span className="brand-sub">학습노트</span>

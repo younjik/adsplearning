@@ -16,14 +16,16 @@ function TheoryBlock({ block }) {
       );
     case 'table':
       return (
-        <table>
-          <tbody>
-            <tr>{block.headers.map((h, i) => <th key={i}>{h}</th>)}</tr>
-            {block.rows.map((row, i) => (
-              <tr key={i}>{row.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="table-scroll">
+          <table>
+            <tbody>
+              <tr>{block.headers.map((h, i) => <th key={i}>{h}</th>)}</tr>
+              {block.rows.map((row, i) => (
+                <tr key={i}>{row.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       );
     case 'tip':
       return (

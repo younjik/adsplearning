@@ -1,8 +1,10 @@
 import { SUBJECTS, THEORY, subjectPracticeQuestionIds } from '../data';
 
-export default function Sidebar({ expanded, selectedItem, answers, onToggleSubject, onSelectItem, onSelectSection }) {
+export default function Sidebar({ expanded, selectedItem, answers, onToggleSubject, onSelectItem, onSelectSection, open: mobileOpen, onClose }) {
   return (
-    <div className="sidebar">
+    <>
+      {mobileOpen && <div className="sidebar-backdrop" onClick={onClose}></div>}
+      <div className={`sidebar ${mobileOpen ? 'open' : ''}`}>
       {SUBJECTS.map((s) => {
         const open = expanded.has(s.id);
         const practiceId = `practice:${s.id}`;
@@ -63,6 +65,7 @@ export default function Sidebar({ expanded, selectedItem, answers, onToggleSubje
           </div>
         );
       })}
-    </div>
+      </div>
+    </>
   );
 }

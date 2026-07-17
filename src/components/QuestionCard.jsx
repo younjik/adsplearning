@@ -38,14 +38,16 @@ export default function QuestionCard({
       </div>
       {q.code && <pre className="q-code">{q.code}</pre>}
       {q.table && (
-        <table className="q-table">
-          <tbody>
-            <tr>{q.table.headers.map((h, i) => <th key={i}>{h}</th>)}</tr>
-            {q.table.rows.map((row, i) => (
-              <tr key={i}>{row.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="table-scroll">
+          <table className="q-table">
+            <tbody>
+              <tr>{q.table.headers.map((h, i) => <th key={i}>{h}</th>)}</tr>
+              {q.table.rows.map((row, i) => (
+                <tr key={i}>{row.map((cell, j) => <td key={j}>{cell}</td>)}</tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
       <div className="options">
         {q.options.map((opt, i) => {
