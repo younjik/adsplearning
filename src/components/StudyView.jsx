@@ -126,7 +126,7 @@ function ChapterTheory({ chapterId, bookmarks, onToggleBookmark, scrollTarget })
   );
 }
 
-function SubjectPractice({ subjectId, answers, bookmarks, onAnswer, onRetry, onToggleBookmark, onGotoChapter }) {
+function SubjectPractice({ subjectId, answers, bookmarks, onAnswer, onRetry, onToggleBookmark, onGotoChapter, onResetPractice }) {
   const subject = SUBJECTS.find((s) => s.id === subjectId);
   const qids = subjectPracticeQuestionIds(subjectId);
 
@@ -143,11 +143,20 @@ function SubjectPractice({ subjectId, answers, bookmarks, onAnswer, onRetry, onT
     );
   }
 
+  const hasAnswers = qids.some((id) => answers[id] !== undefined);
+
   return (
     <div className="content-col">
       <div className="eyebrow">{subject.name}</div>
       <div className="chapter-title-row"><h1>예상문제</h1></div>
       <div className="page-sub">과목의 이론을 마무리하며 풀어보는 문제 {qids.length}개입니다.</div>
+      {hasAnswers && (
+        <div className="reset-row">
+          <button type="button" className="btn small danger" onClick={() => onResetPractice(subjectId)}>
+            기록 초기화
+          </button>
+        </div>
+      )}
       {qids.map((qid, i) => (
         <QuestionCard
           key={qid}
@@ -165,7 +174,7 @@ function SubjectPractice({ subjectId, answers, bookmarks, onAnswer, onRetry, onT
   );
 }
 
-export default function StudyView({ selectedItem, answers, bookmarks, scrollTarget, onAnswer, onRetry, onToggleBookmark, onGotoChapter }) {
+export default function StudyView({ selectedItem, answers, bookmarks, scrollTarget, onAnswer, onRetry, onToggleBookmark, onGotoChapter, onResetPractice }) {
   useEffect(() => {
     if (!scrollTarget) {
       window.scrollTo(0, 0);
@@ -184,6 +193,7 @@ export default function StudyView({ selectedItem, answers, bookmarks, scrollTarg
         onRetry={onRetry}
         onToggleBookmark={onToggleBookmark}
         onGotoChapter={onGotoChapter}
+        onResetPractice={onResetPractice}
       />
     );
   }

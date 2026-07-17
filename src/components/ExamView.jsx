@@ -20,6 +20,7 @@ export default function ExamView({
   onSelectReview,
   onRetryExam,
   onBackToExamHome,
+  onResetExam,
 }) {
   const detailRef = useRef(null);
 
@@ -41,6 +42,9 @@ export default function ExamView({
             {e.qids.length ? (
               <>
                 <span className="chip open">응시 가능</span>
+                {e.qids.some((id) => answers[id] !== undefined) && (
+                  <button type="button" className="btn small danger" onClick={() => onResetExam(e.id)}>기록 삭제</button>
+                )}
                 <button type="button" className="btn primary" onClick={() => onStartExam(e.id)}>시작하기</button>
               </>
             ) : (

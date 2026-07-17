@@ -156,6 +156,24 @@ export default function App() {
   function handleSubmitExam() {
     setExam((prev) => ({ ...prev, status: 'result', reviewQid: examQids(prev.examId)[0] }));
   }
+  function handleResetPractice(subjectId) {
+    if (!window.confirm('실행하면 푼 문제가 저장이 안 됩니다.\n초기화하시겠어요?')) return;
+    const qids = subjectPracticeQuestionIds(subjectId);
+    setAnswers((prev) => {
+      const next = { ...prev };
+      qids.forEach((id) => delete next[id]);
+      return next;
+    });
+  }
+  function handleResetExam(examId) {
+    if (!window.confirm('실행하면 푼 문제가 저장이 안 됩니다.\n초기화하시겠어요?')) return;
+    const qids = examQids(examId);
+    setAnswers((prev) => {
+      const next = { ...prev };
+      qids.forEach((id) => delete next[id]);
+      return next;
+    });
+  }
   function handleRetryExam() {
     setExam((prev) => {
       const qids = examQids(prev.examId);
@@ -212,6 +230,7 @@ export default function App() {
               onRetry={handleRetry}
               onToggleBookmark={handleToggleBookmark}
               onGotoChapter={handleGoto}
+              onResetPractice={handleResetPractice}
             />
           )}
           {tab === 'exam' && (
@@ -227,6 +246,7 @@ export default function App() {
               onSelectReview={(qid) => setExam((prev) => ({ ...prev, reviewQid: qid }))}
               onRetryExam={handleRetryExam}
               onBackToExamHome={() => setExam(freshExam())}
+              onResetExam={handleResetExam}
             />
           )}
           {tab === 'wrong' && (
