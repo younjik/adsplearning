@@ -257,7 +257,13 @@ button { font-family: inherit; }
 .pass-badge.good { background: var(--good-soft); color: var(--good); }
 .pass-badge.bad { background: var(--bad-soft); color: var(--bad); }
 .score-cap { color: var(--ink-muted); font-size: 13px; margin-top: 10px; }
-.review-list { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--surface); margin-top: 8px; }
+
+.content-col.result { max-width: 1000px; }
+.result-split { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; margin-top: 8px; }
+.review-list {
+  border: 1px solid var(--border); border-radius: var(--radius); overflow-y: auto; background: var(--surface);
+  position: sticky; top: 74px; max-height: calc(100vh - 150px);
+}
 .review-row {
   display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; border: none; border-bottom: 1px solid var(--border);
   font-size: 13.5px; background: transparent; color: var(--ink); text-align: left; cursor: pointer; font-family: inherit;
@@ -271,7 +277,7 @@ button { font-family: inherit; }
 .tag.good { background: var(--good-soft); color: var(--good); }
 .tag.bad { background: var(--bad-soft); color: var(--bad); }
 .result-actions { display: flex; gap: 10px; justify-content: center; margin-top: 22px; }
-.review-detail { margin-top: 18px; }
+.review-detail { scroll-margin-top: 74px; }
 
 .wrong-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
 .wtab {
@@ -319,9 +325,13 @@ button { font-family: inherit; }
 
   .layout { display: block; min-height: calc(100vh - 58px); }
   .main { padding: 20px 14px 50px; }
-  .content-col, .content-col.narrow { max-width: 100%; }
+  .content-col, .content-col.narrow, .content-col.result { max-width: 100%; }
 
   .chapter-title-row h1 { font-size: 1.3rem; }
   .exam-card { flex-wrap: wrap; }
   .score-num { font-size: 2.2rem; }
+
+  .result-split { display: block; }
+  .review-list { position: static; max-height: none; margin-bottom: 16px; }
+  .review-detail { margin-top: 16px; }
 }
