@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { SUBJECTS, QUESTIONS, EXAMS, subjectOfChapter, subjectPracticeQuestionIds } from './data';
+import { loadUserData, saveUserData } from './firebase';
 import TopBar from './components/TopBar';
 import Sidebar from './components/Sidebar';
 import StudyView from './components/StudyView';
 import ExamView from './components/ExamView';
 import WrongNotesView from './components/WrongNotesView';
 import BookmarksView from './components/BookmarksView';
+import PinScreen from './components/PinScreen';
 import './index.css';
 
 const ALL_CHAPTERS = SUBJECTS.flatMap((s) => s.chapters);
@@ -26,6 +28,8 @@ function freshExam() {
 }
 
 export default function App() {
+  const [pin, setPin] = useState(null);
+  const [pinLoading, setPinLoading] = useState(false);
   const [tab, setTab] = useState('study');
   const [expanded, setExpanded] = useState(new Set(['s1']));
   const [selectedItem, setSelectedItem] = useState('c1');
@@ -37,6 +41,36 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const timerRef = useRef(null);
   const highlightTimerRef = useRef(null);
+  const dataReadyRef = useRef(false);
+
+  async function handlePinSubmit(enteredPin) {
+    setPinLoading(true);
+    const data = await loadUserData(enteredPin);
+    if (data) {
+      setAnswers(data.answers || {});
+      setBookmarks(new Set(data.bookmarks || []));
+      setSelectedItem(data.selectedItem || 'c1');
+      setTab(data.tab || 'study');
+      setExpanded(new Set(data.expanded || ['s1']));
+    }
+    setPin(enteredPin);
+    setPinLoading(false);
+    dataReadyRef.current = true;
+  }
+
+  useEffect(() => {
+    if (!pin || !dataReadyRef.current) return;
+    const timer = setTimeout(() => {
+      saveUserData(pin, {
+        answers,
+        bookmarks: [...bookmarks],
+        selectedItem,
+        tab,
+        expanded: [...expanded],
+      });
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [answers, bookmarks, selectedItem, tab, expanded, pin]);
 
   useEffect(() => {
     clearTimeout(highlightTimerRef.current);
@@ -139,6 +173,10 @@ export default function App() {
     done: ALL_CHAPTERS.filter((c) => isChapterComplete(c, answers)).length,
     total: ALL_CHAPTERS.length,
   };
+
+  if (!pin) {
+    return <PinScreen onSubmit={handlePinSubmit} loading={pinLoading} />;
+  }
 
   return (
     <>
