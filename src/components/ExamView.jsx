@@ -114,10 +114,14 @@ export default function ExamView({
 
   return (
     <div className="content-col result">
+      <div className="result-actions">
+        <button type="button" className="btn" onClick={onBackToExamHome}>목록으로</button>
+        <button type="button" className="btn primary" onClick={onRetryExam}>다시 응시하기</button>
+      </div>
       <div className="score-hero">
         <div className="score-num">{correct} / {qids.length} ({pct}%)</div>
         <div className={`pass-badge ${passed ? 'good' : 'bad'}`}>{passed ? '합격' : '불합격'}</div>
-        <div className="score-cap">참고용 판정 — 실제 합격 기준은 과목별 40% 이상 · 평균 60점 이상입니다.</div>
+        <div className="score-cap">실제 합격 기준은 과목별 40% 이상 · 평균 60점 이상입니다.</div>
       </div>
       <div className="result-split">
         <div className="review-list">
@@ -168,10 +172,6 @@ export default function ExamView({
             answered={answers[reviewQid]}
           />
         </div>
-      </div>
-      <div className="result-actions">
-        <button type="button" className="btn" onClick={onBackToExamHome}>목록으로</button>
-        <button type="button" className="btn primary" onClick={onRetryExam}>다시 응시하기</button>
       </div>
     </div>
   );
