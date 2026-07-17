@@ -356,8 +356,11 @@ button { font-family: inherit; }
   border-radius: var(--radius); padding: 40px 36px; max-width: 380px; width: 100%;
   text-align: center;
 }
-.pin-title { font-size: 1.6rem; font-weight: 700; color: var(--accent); margin: 0 0 10px; }
-.pin-desc { color: var(--ink-muted); font-size: 0.93rem; line-height: 1.6; margin: 0 0 28px; }
+.pin-title { font-size: 1.6rem; font-weight: 700; color: var(--accent); margin: 0 0 16px; }
+.pin-tabs { display: flex; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
+.pin-tab { flex: 1; padding: 9px; font-size: 0.88rem; font-weight: 600; border: none; cursor: pointer; background: var(--bg); color: var(--ink-muted); }
+.pin-tab.active { background: var(--accent); color: #fff; }
+.pin-desc { color: var(--ink-muted); font-size: 0.88rem; line-height: 1.7; margin: 0 0 20px; white-space: pre-line; }
 .pin-form { display: flex; flex-direction: column; gap: 12px; }
 .pin-input {
   border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 16px;

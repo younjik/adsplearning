@@ -30,6 +30,7 @@ export default function App() {
 
   const [pin, setPin] = useState(null);
   const [pinLoading, setPinLoading] = useState(false);
+  const [pinError, setPinError] = useState('');
   const [expanded, setExpanded] = useState(new Set(['s1']));
   const [answers, setAnswers] = useState({});
   const [bookmarks, setBookmarks] = useState(new Set());
@@ -87,15 +88,29 @@ export default function App() {
   }, [scrollTarget]);
 
   // PIN 로그인
-  async function handlePinSubmit(enteredPin) {
+  async function handlePinSubmit(enteredPin, isNew) {
     setPinLoading(true);
+    setPinError('');
     const data = await loadUserData(enteredPin);
-    if (data) {
+
+    if (isNew) {
+      if (data !== null) {
+        setPinError('이미 사용 중인 PIN이에요. 다른 번호를 선택해주세요.');
+        setPinLoading(false);
+        return;
+      }
+    } else {
+      if (data === null) {
+        setPinError('등록되지 않은 PIN이에요. 처음이신가요? 탭에서 만들어보세요.');
+        setPinLoading(false);
+        return;
+      }
       setAnswers(data.answers || {});
       setBookmarks(new Set(data.bookmarks || []));
       setExpanded(new Set(data.expanded || ['s1']));
       if (data.lastPath) navigate(data.lastPath);
     }
+
     setPin(enteredPin);
     setPinLoading(false);
     dataReadyRef.current = true;
@@ -231,7 +246,7 @@ export default function App() {
   };
 
   if (!pin) {
-    return <PinScreen onSubmit={handlePinSubmit} loading={pinLoading} />;
+    return <PinScreen onSubmit={handlePinSubmit} loading={pinLoading} error={pinError} />;
   }
 
   return (
