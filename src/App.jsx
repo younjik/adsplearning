@@ -50,6 +50,9 @@ export default function App() {
     : path.startsWith('/bookmarks') ? 'bookmarks'
     : 'study';
   const selectedItem = path.startsWith('/study/') ? path.slice(7) : 'c1';
+  const returnTo = location.state?.returnTo || null;
+  const returnQid = location.state?.returnQid || null;
+  const scrollToQid = location.state?.scrollToQid || null;
   const examUrlMatch = path.match(/^\/exam\/([^/]+)(\/result)?$/);
   const examId = examUrlMatch ? examUrlMatch[1] : null;
   const examStatus = examUrlMatch ? (examUrlMatch[2] ? 'result' : 'running') : 'home';
@@ -146,8 +149,8 @@ export default function App() {
     setScrollTarget(`section:${sectionIndex}`);
     setSidebarOpen(false);
   }
-  function handleGoto(target, topicId) {
-    navigate('/study/' + target);
+  function handleGoto(target, topicId, fromQid) {
+    navigate('/study/' + target, { state: { returnTo: path, returnQid: fromQid || null } });
     setScrollTarget(topicId || null);
     setSidebarOpen(false);
     const subjectId = target.startsWith('practice:') ? target.split(':')[1] : subjectOfChapter(target)?.id;
@@ -288,6 +291,12 @@ export default function App() {
                   onToggleBookmark={handleToggleBookmark}
                   onGotoChapter={handleGoto}
                   onResetPractice={handleResetPractice}
+                  returnTo={returnTo}
+                  onBack={returnTo ? () => {
+                    setScrollTarget(null);
+                    navigate(returnTo, { state: { scrollToQid: returnQid } });
+                  } : null}
+                  scrollToQid={scrollToQid}
                 />
               }
             />
@@ -306,6 +315,7 @@ export default function App() {
                   onRetry={handleRetry}
                   onToggleBookmark={handleToggleBookmark}
                   onGotoChapter={handleGoto}
+                  scrollToQid={scrollToQid}
                 />
               }
             />

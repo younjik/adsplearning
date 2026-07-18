@@ -9,6 +9,7 @@ export default function QuestionCard({
   showRetry = true,
   answered,
   isBookmarked,
+  highlighted,
   onAnswer,
   onRetry,
   onToggleBookmark,
@@ -17,10 +18,10 @@ export default function QuestionCard({
   const q = QUESTIONS[qid];
   const isCorrect = answered !== undefined ? answered.choice === q.answer : null;
   const showFeedback = reveal && answered !== undefined;
-  const cardClass = ['qcard', showFeedback ? (isCorrect ? 'correct' : 'incorrect') : ''].join(' ').trim();
+  const cardClass = ['qcard', showFeedback ? (isCorrect ? 'correct' : 'incorrect') : '', highlighted ? 'return-highlight' : ''].join(' ').trim();
 
   return (
-    <div className={cardClass}>
+    <div className={cardClass} id={`qcard-${qid}`}>
       {label && <div className="note-src">{label}</div>}
       <div className="qhead">
         <span className="qnum">{numLabel}</span>
@@ -81,7 +82,7 @@ export default function QuestionCard({
           {!isCorrect && q.chapterId && onGotoChapter && (
             <div className="chapter-link-row">
               <span>관련 이론</span>
-              <button type="button" className="chapter-link-btn" onClick={() => onGotoChapter(q.chapterId, q.topicId)}>
+              <button type="button" className="chapter-link-btn" onClick={() => onGotoChapter(q.chapterId, q.topicId, qid)}>
                 {chapterName(q.chapterId)} 보기 →
               </button>
             </div>

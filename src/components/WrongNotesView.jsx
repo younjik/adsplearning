@@ -1,8 +1,18 @@
+import { useEffect, useState } from 'react';
 import { QUESTIONS, SUBJECTS, EXAMS } from '../data';
 import QuestionCard from './QuestionCard';
 
-export default function WrongNotesView({ answers, bookmarks, wrongFilter, onSetWrongFilter, onAnswer, onRetry, onToggleBookmark, onGotoChapter }) {
+export default function WrongNotesView({ answers, bookmarks, wrongFilter, onSetWrongFilter, onAnswer, onRetry, onToggleBookmark, onGotoChapter, scrollToQid }) {
   const wrongIds = Object.keys(answers).filter((id) => answers[id].choice !== QUESTIONS[id].answer);
+  const [highlightQid, setHighlightQid] = useState(null);
+
+  useEffect(() => {
+    if (!scrollToQid) return;
+    document.getElementById(`qcard-${scrollToQid}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setHighlightQid(scrollToQid);
+    const t = setTimeout(() => setHighlightQid(null), 2500);
+    return () => clearTimeout(t);
+  }, [scrollToQid]);
 
   if (wrongIds.length === 0) {
     return (
@@ -66,6 +76,7 @@ export default function WrongNotesView({ answers, bookmarks, wrongFilter, onSetW
             bookmarkable={!q.examId}
             answered={answers[id]}
             isBookmarked={bookmarks.has(id)}
+            highlighted={id === highlightQid}
             onAnswer={onAnswer}
             onRetry={onRetry}
             onToggleBookmark={onToggleBookmark}

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SUBJECTS, THEORY, subjectOfChapter, subjectPracticeQuestionIds } from '../data';
 import QuestionCard from './QuestionCard';
 
@@ -53,7 +53,15 @@ function groupByHeading(blocks) {
   return groups;
 }
 
-function ChapterTheory({ chapterId, bookmarks, onToggleBookmark, scrollTarget }) {
+function returnLabel(returnTo) {
+  if (!returnTo) return null;
+  if (returnTo.startsWith('/wrong')) return '오답노트';
+  if (returnTo.startsWith('/bookmarks')) return '북마크';
+  if (returnTo.includes('practice:')) return '예상문제';
+  return '이전 화면';
+}
+
+function ChapterTheory({ chapterId, bookmarks, onToggleBookmark, scrollTarget, returnTo, onBack }) {
   const chapterDef = SUBJECTS.flatMap((s) => s.chapters).find((c) => c.id === chapterId);
   const scrollRef = useRef(null);
 
@@ -114,6 +122,11 @@ function ChapterTheory({ chapterId, bookmarks, onToggleBookmark, scrollTarget })
                     ref={isHighlighted ? scrollRef : null}
                     className={`topic-group ${isHighlighted ? 'highlight' : ''}`}
                   >
+                    {isHighlighted && returnTo && (
+                      <button type="button" className="return-popup" onClick={onBack}>
+                        ← {returnLabel(returnTo)}로 돌아가기
+                      </button>
+                    )}
                     {group.blocks.map((block, k) => <TheoryBlock block={block} key={k} />)}
                   </div>
                 );
@@ -126,9 +139,18 @@ function ChapterTheory({ chapterId, bookmarks, onToggleBookmark, scrollTarget })
   );
 }
 
-function SubjectPractice({ subjectId, answers, bookmarks, onAnswer, onRetry, onToggleBookmark, onGotoChapter, onResetPractice }) {
+function SubjectPractice({ subjectId, answers, bookmarks, onAnswer, onRetry, onToggleBookmark, onGotoChapter, onResetPractice, scrollToQid }) {
   const subject = SUBJECTS.find((s) => s.id === subjectId);
   const qids = subjectPracticeQuestionIds(subjectId);
+  const [highlightQid, setHighlightQid] = useState(null);
+
+  useEffect(() => {
+    if (!scrollToQid) return;
+    document.getElementById(`qcard-${scrollToQid}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setHighlightQid(scrollToQid);
+    const t = setTimeout(() => setHighlightQid(null), 2500);
+    return () => clearTimeout(t);
+  }, [scrollToQid]);
 
   if (qids.length === 0) {
     return (
@@ -164,6 +186,7 @@ function SubjectPractice({ subjectId, answers, bookmarks, onAnswer, onRetry, onT
           numLabel={`Q${i + 1}`}
           answered={answers[qid]}
           isBookmarked={bookmarks.has(qid)}
+          highlighted={qid === highlightQid}
           onAnswer={onAnswer}
           onRetry={onRetry}
           onToggleBookmark={onToggleBookmark}
@@ -174,12 +197,12 @@ function SubjectPractice({ subjectId, answers, bookmarks, onAnswer, onRetry, onT
   );
 }
 
-export default function StudyView({ selectedItem, answers, bookmarks, scrollTarget, onAnswer, onRetry, onToggleBookmark, onGotoChapter, onResetPractice }) {
+export default function StudyView({ selectedItem, answers, bookmarks, scrollTarget, onAnswer, onRetry, onToggleBookmark, onGotoChapter, onResetPractice, returnTo, onBack, scrollToQid }) {
   useEffect(() => {
-    if (!scrollTarget) {
+    if (!scrollTarget && !scrollToQid) {
       window.scrollTo(0, 0);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run on navigation, not when scrollTarget later clears itself
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run on navigation, not when scrollTarget/scrollToQid later clear themselves
   }, [selectedItem]);
 
   if (selectedItem.startsWith('practice:')) {
@@ -194,6 +217,7 @@ export default function StudyView({ selectedItem, answers, bookmarks, scrollTarg
         onToggleBookmark={onToggleBookmark}
         onGotoChapter={onGotoChapter}
         onResetPractice={onResetPractice}
+        scrollToQid={scrollToQid}
       />
     );
   }
@@ -203,6 +227,8 @@ export default function StudyView({ selectedItem, answers, bookmarks, scrollTarg
       bookmarks={bookmarks}
       onToggleBookmark={onToggleBookmark}
       scrollTarget={scrollTarget}
+      returnTo={returnTo}
+      onBack={onBack}
     />
   );
 }
